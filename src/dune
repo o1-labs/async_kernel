@@ -7,4 +7,5 @@
    core_kernel.timing_wheel core_kernel.tuple_pool)
  (preprocess
   (pps ppx_jane))
- (ocamlopt_flags :standard -O3))
+ (ocamlopt_flags :standard -O3)
+ (flags (:standard -w -55)))
