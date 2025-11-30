@@ -31,6 +31,14 @@ module Throttle = Throttle
 module Throttled = Throttled
 module Time_source = Time_source
 
+module Tracing : sig
+  val set_tracers
+    :  on_job_enter:(Execution_context.t -> unit)
+    -> on_job_exit:(Execution_context.t -> Time_ns.Span.t -> unit)
+    -> unit
+end =
+  Tracing
+
 (** {2 Toplevel functions }
 
     The functions below are broadly useful when writing Async programs, and so are made
