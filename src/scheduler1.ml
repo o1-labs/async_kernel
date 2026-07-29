@@ -114,6 +114,7 @@ type t = Scheduler0.t =
   ; mutable check_invariants : bool
   ; mutable max_num_jobs_per_priority_per_cycle : Max_num_jobs_per_priority_per_cycle.t
   ; mutable record_backtraces : bool
+  ; mutable long_jobs_last_cycle : (Execution_context.t * Time_ns.Span.t) list
   }
 [@@deriving fields, sexp_of]
 
@@ -198,6 +199,7 @@ let invariant t : unit =
       ~check_invariants:ignore
       ~max_num_jobs_per_priority_per_cycle:ignore
       ~record_backtraces:ignore
+      ~long_jobs_last_cycle:ignore
   with
   | exn -> raise_s [%message "Scheduler.invariant failed" (exn : exn) (t : t)]
 ;;
@@ -271,6 +273,7 @@ let create () =
     ; max_num_jobs_per_priority_per_cycle =
         Async_kernel_config.max_num_jobs_per_priority_per_cycle
     ; record_backtraces = Async_kernel_config.record_backtraces
+    ; long_jobs_last_cycle = []
     }
   and events =
     Timing_wheel.create ~config:Async_kernel_config.timing_wheel_config ~start:now

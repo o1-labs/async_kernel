@@ -60,6 +60,7 @@ and Execution_context : sig
     { monitor : Monitor.t
     ; priority : Priority.t
     ; local_storage : Univ_map.t
+    ; tid : int
     ; backtrace_history : Backtrace.t list
     }
 end =
@@ -229,6 +230,7 @@ and Scheduler : sig
     ; mutable check_invariants : bool
     ; mutable max_num_jobs_per_priority_per_cycle : Max_num_jobs_per_priority_per_cycle.t
     ; mutable record_backtraces : bool
+    ; mutable long_jobs_last_cycle : (Execution_context.t * Time_ns.Span.t) list
     }
 end =
   Scheduler

@@ -8,6 +8,9 @@ open! Import
 
 type 'a with_options := ?monitor:Monitor.t -> ?priority:Priority.t -> 'a
 
+(** exposed for Mina; returns the raw global scheduler. *)
+val t : unit -> Scheduler.t
+
 val current_execution_context : unit -> Execution_context.t
 
 (** [within_context context f] runs [f ()] right now with the specified execution
@@ -80,6 +83,16 @@ val last_cycle_time : unit -> Time_ns.Span.t
     [at_least].  [long_cycles] is more efficient than [cycle_times] because it only
     allocates a stream entry when there is a long cycle, rather than on every cycle. *)
 val long_cycles : at_least:Time_ns.Span.t -> Time_ns.Span.t Async_stream.t
+
+(** exposed for Mina; like [long_cycles] but pairs each long cycle's duration with the
+    execution context current at the start of that cycle. *)
+val long_cycles_with_context
+  :  at_least:Time_ns.Span.t
+  -> (Time_ns.Span.t * Execution_context.t) Async_stream.t
+
+(** exposed for Mina; a stream of individual jobs (with their execution context) that ran
+    for at least 2000ms. *)
+val long_jobs_with_context : (Execution_context.t * Time_ns.Span.t) Async_stream.t
 
 (** [cycle_count ()] returns the total number of Async cycles that have happened. *)
 val cycle_count : unit -> int
