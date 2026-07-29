@@ -1,5 +1,6 @@
-(** Contains Async's core data structures, like {{!Async_kernel.Deferred}[Deferred]},
-    {{!Async_kernel.Ivar}[Ivar]}, and {{!Async_kernel.Clock_intf.Clock}[Clock]}.
+(** Contains Async's core data structures, like
+    {{!Async_kernel.Deferred}[Deferred]}, {{!Async_kernel.Ivar}[Ivar]}, and
+    {{!Async_kernel.Clock_intf.Clock}[Clock]}.
 
     [Async_kernel] is designed to depend only on {{!Core}[Core]} and so is more
     platform-independent. *)
@@ -31,12 +32,18 @@ module Throttle = Throttle
 module Throttled = Throttled
 module Time_source = Time_source
 
+module Tracing : sig
+  val set_tracers :
+    on_job_enter:(Execution_context.t -> unit) ->
+    on_job_exit:(Execution_context.t -> Time_ns.Span.t -> unit) ->
+    unit
+end =
+  Tracing
 
-(** {2 Toplevel functions }
+(** {2 Toplevel functions}
 
-    The functions below are broadly useful when writing Async programs, and so are made
-    available at the toplevel. *)
-
+    The functions below are broadly useful when writing Async programs, and so
+    are made available at the toplevel. *)
 
 let after = Clock_ns.after
 let at = Clock_ns.at
@@ -71,8 +78,8 @@ include Deferred.Let_syntax
 
 (**/**)
 
-(** The modules in [Async_kernel_private] are used for constructing and testing Async, and
-    should not otherwise be used. *)
+(** The modules in [Async_kernel_private] are used for constructing and testing
+    Async, and should not otherwise be used. *)
 module Async_kernel_private = struct
   module Debug = Debug
   module Ivar0 = Ivar0
@@ -90,7 +97,8 @@ let%test_unit "[return ()] does not allocate" =
   ignore (Sys.opaque_identity (return ()) : _ Deferred.t);
   ignore (Sys.opaque_identity (Deferred.return ()) : _ Deferred.t);
   ignore (Sys.opaque_identity (Deferred.Let_syntax.return ()) : _ Deferred.t);
-  ignore (Sys.opaque_identity (Deferred.Let_syntax.Let_syntax.return ()) : _ Deferred.t);
+  ignore
+    (Sys.opaque_identity (Deferred.Let_syntax.Let_syntax.return ())
+      : _ Deferred.t);
   let w2 = Gc.minor_words () in
   [%test_result: int] w2 ~expect:w1
-;;
