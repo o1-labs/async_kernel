@@ -111,6 +111,24 @@ let long_cycles t ~at_least =
       then Tail.extend tail t.last_cycle_time))
 ;;
 
+(* like [long_cycles], but pairs the cycle time with the execution context that was
+   current at the start of the cycle. *)
+let long_cycles_with_context t ~at_least =
+  Stream.create (fun tail ->
+    run_every_cycle_start t ~f:(fun () ->
+      if Time_ns.Span.( >= ) t.last_cycle_time at_least
+      then Tail.extend tail (t.last_cycle_time, t.current_execution_context)))
+;;
+
+(* a stream of the individual jobs that ran long (>= 2000ms) during the previous cycle,
+   as accumulated in [long_jobs_last_cycle] by [Job_queue.run_jobs]. *)
+let long_jobs_with_context t =
+  Stream.create (fun tail ->
+    run_every_cycle_start t ~f:(fun () ->
+      List.iter t.long_jobs_last_cycle ~f:(fun job -> Tail.extend tail job);
+      t.long_jobs_last_cycle <- []))
+;;
+
 let cycle_num_jobs t =
   Stream.create (fun tail ->
     run_every_cycle_start t ~f:(fun () -> Tail.extend tail t.last_cycle_num_jobs))

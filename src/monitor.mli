@@ -54,6 +54,10 @@ val create : (unit -> t) with_optional_monitor_name
     [create]. *)
 val name : t -> Info.t
 
+(** [here t] returns the source-code position that was passed as [?here] when [t] was
+    created, if any. *)
+val here : t -> Source_code_position.t option
+
 (** [current ()] returns the current monitor. *)
 val current : unit -> t
 

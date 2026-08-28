@@ -1,0 +1,4 @@
+(executable
+ (name jobtrace_test)
+ (libraries core async_kernel)
+ (preprocess (pps ppx_jane)))

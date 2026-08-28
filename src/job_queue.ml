@@ -151,7 +151,7 @@ let run_external_jobs t (scheduler : Scheduler.t) =
   done
 ;;
 
-let run_jobs (type a) t scheduler =
+let run_jobs (type a) t (scheduler : Scheduler.t) =
   (* We do the [try-with] outside of the [while] because it is cheaper than doing a
      [try-with] for each job. *)
   (* [run_external_jobs] before entering the loop, since it might enqueue a job,
@@ -181,6 +181,10 @@ let run_jobs (type a) t scheduler =
       let start = Time_ns.now () in
       run_job t scheduler execution_context f a;
       let this_job_time = Time_ns.(diff (now ()) start) in
+      if Float.( >= ) (Time_ns.Span.to_ms this_job_time) 2000.
+      then
+        scheduler.long_jobs_last_cycle
+        <- (execution_context, this_job_time) :: scheduler.long_jobs_last_cycle;
       !Tracing.tracers.on_job_exit execution_context this_job_time;
       (* [run_external_jobs] at each iteration of the [while] loop, for fairness. *)
       run_external_jobs t scheduler
