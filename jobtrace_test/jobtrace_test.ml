@@ -56,9 +56,16 @@ let () =
     (List.exists !long_jobs ~f:(fun (_, span) ->
        Float.( >= ) (Time_ns.Span.to_ms span) 2000.));
   check "long_cycles_with_context yielded a cycle" (not (List.is_empty !long_cycles));
+  (* both directions, so this fails if [here] ever stops tracking [?here] rather
+     than merely if the export is dropped (which the build would catch anyway). *)
   check
-    "Monitor.here is exported"
-    (Option.is_none (Monitor.here (Monitor.create ())) || true);
+    "Monitor.here recovers the creation position"
+    (match Monitor.here (Monitor.create ~here:[%here] ()) with
+     | Some pos -> String.is_suffix pos.pos_fname ~suffix:"jobtrace_test.ml"
+     | None -> false);
+  check
+    "Monitor.here is None when ?here was not passed"
+    (Option.is_none (Monitor.here (Monitor.create ())));
   printf "long_jobs=%d long_cycles=%d entered=%d exited=%d\n"
     (List.length !long_jobs) (List.length !long_cycles) !entered !exited;
   exit (if !failures = 0 then 0 else 1)

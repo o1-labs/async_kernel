@@ -1,3 +1,8 @@
+; Deliberately NOT a public target: no (public_name) and no (package ...), so
+; `dune build -p async_kernel` — and therefore the opam build — skips this
+; directory entirely. Do not add either field: it would drag this executable
+; into the package's install closure and make `core`/`ppx_jane` build-time
+; dependencies of a consumer's `opam install async_kernel`.
 (executable
  (name jobtrace_test)
  (libraries core async_kernel)
